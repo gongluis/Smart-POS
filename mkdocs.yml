@@ -29,7 +29,7 @@
     - 快速接入:
          - 1. SDK API: documentation/quik.md 
          - 2. BLUETOOTH API: documentation/bluetooth.md 
-         - 3. TEST: documentation/test.md   
+         - 3. DCC: documentation/DCC.md   
     - 交互流程图:
          - 概述和序列图: flowChart/overview.md    
          - 系统交互图: flowChart/systemFlowChart.md   

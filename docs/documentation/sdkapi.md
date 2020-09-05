@@ -9,7 +9,7 @@
 
 ```gradle
 gradle:
-    implementation 'com.cardinfolink.smart.pos:PosSDK:2.5.2'
+    implementation 'com.cardinfolink.smart.pos:PosSDK:2.5.4'
 ```
 
 or

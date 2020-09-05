@@ -246,20 +246,16 @@ CILSDK.getMerchantInfo(HashUtils.encryptActiveCode(authCode), true, new Callback
                 initCardEvent();
                 return;
             }
-        
-            //1. 根据银联85号文规定，智能终端在消费和预授权完成交易需上送经度，纬度，坐标系信息到卡组织
-			CILRequest request = new CILRequest();
-			
-			request.setLongitude(121.600228);//设置经度
-			request.setLatitude(31.180606);//设置纬度
-			request.setCoordinates("GCJ02");//设置坐标系
-			//关于坐标系，国内一些常用第三方取值：百度（BD09），高德、腾讯（GCJ02），GPS（WGS84）。
-			//一般第三方定位SDK都能从定位后返回的位置信息类中取到，详细可查看各第三方接入文档。
-			
-			
-			//2.如果接入方需要进行DCC交易，在消费和预授权完成交易中需将汇率信息填入request中，否则无需处理
-			CILRequest request = new CILRequest();
-			...
+            //1. 卡片信息
+            request.setCardNum(cardNumber);
+            request.setCardExpirationDate(cardInfo.getCardExpirationDate());
+            request.setPinEmv(cardInfo.getPinBins());
+            request.setCardSequenceNumber(cardInfo.getSequenceSerialNum());
+            request.setField55(cardInfo.getField55());
+            request.setSecondTrack(cardInfo.getTrack2());
+            
+            //2.如果接入方需要进行DCC交易，在消费和预授权完成交易中需将汇率信息填入request中，否则无需处理
+
 			if (rateInfo != null) {
 			    request.setBillingAmt(rateInfo.getBillingAmt());//设置扣账金额
 			    request.setBillingCurr(rateInfo.getBillingCurr());//设置扣账币种
@@ -267,8 +263,26 @@ CILSDK.getMerchantInfo(HashUtils.encryptActiveCode(authCode), true, new Callback
 			    request.setBatchNum(rateInfo.getBatchNum());//设置汇率请求批次号
 			    request.setTraceNum(rateInfo.getTraceNum());//设置汇率请求流水号
 			}
+			//3. 自定义订单号
+            if (!TextUtils.isEmpty(extOrder)) {
+            request.setOrderId(extOrder);
+            }
+            //4.如果是手输卡号交易posInputStyle需要传"012"
+    //        if (!TextUtils.isEmpty(posInputStyle)) {
+    //            request.setPosInputStyle("012");
+    //        }
 			
-			//3. 在这里面发送银行卡相关的交易(如消费、消费撤销、退货、预授权、预授权撤销、预授权完成、预授权完成撤销、余额查询)
+            //5. 地理位置，银联85
+                 /*1. 根据银联85号文规定，智能终端在消费和预授权完成交易需上送经度，纬度，坐标系信息到卡组织
+                   关于坐标系，国内一些常用第三方取值：百度（BD09），高德、腾讯（GCJ02），GPS（WGS84）。
+                   一般第三方定位SDK都能从定位后返回的位置信息类中取到，详细可查看各第三方接入文档。*/
+	
+			request.setLongitude(121.600228);//设置经度
+			request.setLatitude(31.180606);//设置纬度
+			request.setCoordinates("GCJ02");//设置坐标系
+			
+			
+			//6. 在这里面发送银行卡相关的交易(如消费、消费撤销、退货、预授权、预授权撤销、预授权完成、预授权完成撤销、余额查询)
             //CILSDK.consume(request, cardType, new Callback<CILResponse>() //消费
 		}
    
