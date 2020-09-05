@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>3. TEST - CRAZYFOX</title>
+        <title>3. DCC - CRAZYFOX</title>
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome.min.css" rel="stylesheet">
         <link href="../../css/base.css" rel="stylesheet">
@@ -62,7 +62,7 @@
 </li>
                                     
 <li class="active">
-    <a href="./">3. TEST</a>
+    <a href="./">3. DCC</a>
 </li>
                                 </ul>
                             </li>
@@ -132,7 +132,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="https://github.com/CardInfoLink/Smart-POS/edit/master/docs/documentation/test.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                                <a href="https://github.com/CardInfoLink/Smart-POS/edit/master/docs/documentation/DCC.md"><i class="fa fa-github"></i> Edit on GitHub</a>
                             </li>
                     </ul>
                 </div>
@@ -142,20 +142,36 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#_1">目录一</a></li>
-        <li class="main "><a href="#_2">目录二</a></li>
-        <li class="main "><a href="#_3">目录三</a></li>
+        <li class="main active"><a href="#sdk-dcc">SDK 关于DCC处理逻辑</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h3 id="_1">目录一</h3>
-<p><strong>dd</strong>  </p>
-<p><strong>cc</strong></p>
-<h3 id="_2">目录二</h3>
-<p><strong>dd</strong>  </p>
-<p><strong>cc</strong></p>
-<h3 id="_3">目录三</h3></div>
+<h3 id="sdk-dcc">SDK 关于DCC处理逻辑</h3>
+<p><strong>序列图</strong><br />
+<img alt="" src="../../img/dcc.png" /></p>
+<p><strong>流程概述</strong>  </p>
+<ol>
+<li>在POS终端中载入最新的VISA/MC/JCB的卡BIN信息</li>
+<li>终端获取卡BIN信息并进行判断是否支持DCC，目前支持DCC的卡组织包括：<ul>
+<li>Visa：卡号4开头；</li>
+<li>万事达：卡号51-55开头，以及以222100-272099开头</li>
+<li>JCB：卡号35开头
+若卡号不属于以上范围，则终端直接向讯联后台发送EDC交易请求，若是，则进行下一步判断</li>
+</ul>
+</li>
+<li>判断是不是银联双标卡（终端需要装载双标卡BIN），若是，则不支持DCC交易，发送银联卡交易请求；若不是，则由讯联进行DCC汇率查询</li>
+<li>讯联返回查询结果至终端，终端检查查询结果，若查询失败，向讯联发送EDC交易请求；</li>
+<li>若汇率查询成功，POS机收到查询成功应答，POS发起DCC交易请求。</li>
+<li>讯联向卡组织申请DCC消费授权，进入正常DCC消费流程，后续处理流程同现有流程，保持不变。即打印DCC签购单，由持卡人选择DCC或EDC；</li>
+<li>若持卡人选择DCC，则终端继续打印DCC签购单；若持卡人选择EDC，则终端向讯联发送DCC转EDC请求，同时打印EDC签购单。</li>
+</ol>
+<blockquote>
+<p>注意<br />
+做DCC交易时需要在isOpenDCC方法中将消费或者预授权完成的交易返回true。<br />
+调用卡消费和卡预授权完成别忘了将读卡回调返回的汇率信息设置进request。<br />
+对于支持DCC的卡，调用消费或者预授权完成接口，sdk默认做DCC交易，做完后提供DCC转EDC选项供持卡人选择。</p>
+</blockquote></div>
         </div>
 
         <footer class="col-md-12">
